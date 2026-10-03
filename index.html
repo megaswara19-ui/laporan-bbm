@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Form Input & Laporan Penggunaan BBM</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <style>
+        body { font-family: Arial, sans-serif; background: #f8f9fa; color: #000; }
+        .sheet { background: #fff; width: 100%; max-width: 1050px; margin: 20px auto; padding: 25px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+        .report-title { text-align: center; font-weight: bold; font-size: 13px; text-transform: uppercase; margin-bottom: 2px; }
+        
+        .table-laporan { width: 100%; border-collapse: collapse; margin-top: 15px; table-layout: fixed; }
+        .table-laporan th, .table-laporan td { border: 1px solid #000; padding: 5px 3px; text-align: center; vertical-align: middle; font-size: 9px; word-wrap: break-word; }
+        .table-laporan th { background-color: #f1f1f1; text-transform: uppercase; font-size: 9px; }
+        .text-start-custom { text-align: left !important; padding-left: 5px !important; }
+        
+        .signature-section { margin-top: 40px; width: 100%; page-break-inside: avoid; }
+        .sign-box { text-align: center; height: 80px; vertical-align: bottom; font-size: 11px; }
+
+        @media print {
+            body { background: none; }
+            .sheet { box-shadow: none; margin: 0; padding: 0; width: 100%; max-width: 100%; }
+            .no-print { display: none !important; }
+        }
+    </style>
+</head>
+<body class="py-4">
+
+<!-- FORM / MENU INPUT TRANSAKSI (Hilang saat diprint) -->
+<div class="container no-print" style="max-width: 1050px; margin-bottom: 20px;">
+    <div class="card shadow-sm border-primary p-3 bg-white">
+        <h5 class="text-primary fw-bold mb-3"><i class="bi bi-calendar-range"></i> Pengaturan Periode & Form Input Transaksi</h5>
+        <div class="row g-2">
+            <div class="col-md-3">
+                <label class="form-label fw-bold" style="font-size: 11px;">Dari Tanggal:</label>
+                <input type="date" id="tgl_mulai" class="form-control form-control-sm" value="2026-09-01" onchange="updatePeriodeOtomatis()">
+            </div>
+            <div class="col-md-3">
+                <label class="form-label fw-bold" style="font-size: 11px;">Sampai Tanggal:</label>
+                <input type="date" id="tgl_selesai" class="form-control form-control-sm" value="2026-09-15" onchange="updatePeriodeOtomatis()">
+            </div>
+            <div class="col-md-6"></div>
+
+            <div class="col-md-2 mt-3">
+                <label class="form-label fw-bold" style="font-size: 11px;">Nopol:</label>
+                <input type="text" id="form_nopol" class="form-control form-control-sm" value="D 1040 AKO">
+            </div>
+            <div class="col-md-3 mt-3">
+                <label class="form-label fw-bold" style="font-size: 11px;">Merk Kendaraan:</label>
+                <input type="text" id="form_merk" class="form-control form-control-sm" value="DAIHATSU TERIOS AT">
+            </div>
+            <div class="col-md-2 mt-3">
+                <label class="form-label fw-bold" style="font-size: 11px;">Lokasi:</label>
+                <input type="text" id="form_lokasi" class="form-control form-control-sm" value="BANDUNG">
+            </div>
+            <div class="col-md-3 mt-3">
+                <label class="form-label fw-bold" style="font-size: 11px;">Peruntukan:</label>
+                <input type="text" id="form_peruntukan" class="form-control form-control-sm" value="EGM KCU BANDUNG">
+            </div>
+            <div class="col-md-2 mt-3">
+                <label class="form-label fw-bold" style="font-size: 11px;">BBM (Liter):</label>
+                <input type="number" id="form_bbm" class="form-control form-control-sm" value="70">
+            </div>
+            
+            <div class="col-md-2 mt-3">
+                <label class="form-label fw-bold" style="font-size: 11px;">KM Awal:</label>
+                <input type="text" id="form_km_awal" class="form-control form-control-sm" value="77875">
+            </div>
+            <div class="col-md-2 mt-3">
+                <label class="form-label fw-bold" style="font-size: 11px;">KM Akhir:</label>
+                <input type="text" id="form_km_akhir" class="form-control form-control-sm" placeholder="Isi Odo Akhir" value="78316">
+            </div>
+            <div class="col-md-8 mt-3 d-flex align-items-end">
+                <button type="button" class="btn btn-success btn-sm w-100 fw-bold py-1.5" onclick="tambahTransaksi()"><i class="bi bi-plus-circle"></i> Tambah Transaksi ke Laporan</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="sheet" id="area-laporan">
+    <!-- Header Laporan -->
+    <div class="report-title" style="font-size: 14px; margin-bottom: 4px;">BANDUNG - 40000</div>
+    <div id="label_periode_header" style="text-align: center; font-size: 11px; margin-bottom: 15px;">Periode : 01 September 2026 s/d 15 September 2026</div>
+
+    <!-- Tabel Data Laporan -->
+    <table class="table-laporan" id="tabel-bbm">
+        <thead>
+            <tr>
+                <th style="width: 28px;">NO.</th>
+                <th style="width: 70px;">NOPOL</th>
+                <th style="width: 115px;">MERK</th>
+                <th style="width: 65px;">LOKASI</th>
+                <th style="width: 75px;">PERUNTUKAN</th>
+                <th style="width: 48px;">BBM (L)</th>
+                <th style="width: 80px;">RUPIAH</th>
+                <th style="width: 65px;">KM AWAL</th>
+                <th style="width: 65px;">KM AKHIR</th>
+                <th style="width: 55px;">JARAK</th>
+                <th class="no-print" style="width: 80px;">AKSI</th>
+            </tr>
+        </thead>
+        <tbody id="body-tabel">
+            <tr>
+                <td class="row-no">1</td>
+                <td class="val-nopol fw-bold">D 1040 AKO</td>
+                <td class="val-merk text-start-custom">DAIHATSU TERIOS AT</td>
+                <td class="val-lokasi">BANDUNG</td>
+                <td class="val-peruntukan">78316</td>
+                <td class="val-bbm">70</td>
+                <td><span class="label-rupiah fw-bold">Rp 900.000</span></td>
+                <td class="val-km-awal">77875</td>
+                <td class="val-km-akhir">78316</td>
+                <td><span class="label-jarak fw-bold">441 KM</span></td>
+                <td class="no-print">
+                    <button type="button" class="btn btn-success btn-sm py-0 px-1 mb-1" style="font-size: 8px;" title="Print Baris Ini Sesuai Format" onclick="printBarisKhusus(this)"><i class="bi bi-printer"></i></button>
+                    <button type="button" class="btn btn-primary btn-sm py-0 px-1 mb-1" style="font-size: 8px;" title="Excel Baris Ini Sesuai Format" onclick="excelBarisKhusus(this)"><i class="bi bi-file-earmark-excel"></i></button>
+                    <button type="button" class="btn btn-danger btn-sm py-0 px-1 mb-1" style="font-size: 8px;" title="Hapus Baris" onclick="hapusBaris(this)"><i class="bi bi-trash"></i></button>
+                </td>
+            </tr>
+        </tbody>
+        <tfoot>
+            <!-- Footer dengan Colspan yang pas rata dengan garis tabel atas -->
+            <tr>
+                <td colspan="6" style="font-weight: bold; text-align: left; padding-left: 8px;">TOTAL PEMAKAIAN BBM</td>
+                <td style="font-weight: bold; text-align: center;"><span id="label_total_bawah">Rp 900.000,-</span></td>
+                <td colspan="3"></td>
+            </tr>
+        </tfoot>
+    </table>
+
+    <!-- Opsi Kunci Nominal -->
+    <div class="card bg-light border-warning mt-3 no-print p-3">
+        <div class="form-check">
+            <input class="form-check-input" type="checkbox" id="patenkan_target" checked onchange="hitungSemua()">
+            <label class="form-check-label fw-bold text-dark" for="patenkan_target">
+                <i class="bi bi-magic text-warning"></i> Patenkan / Kunci Total Klaim di Angka Rp 900.000 per baris
+            </label>
+        </div>
+    </div>
+
+    <!-- Tanda Tangan -->
+    <div class="signature-section">
+        <div style="text-align: right; margin-bottom: 25px; padding-right: 20px;">
+            Bandung, 24 September 2026
+        </div>
+        <table style="width: 100%; border: none;">
+            <tr>
+                <td style="width: 33%;" class="sign-box">
+                    <span style="font-weight: bold;">Deputy EGM,</span>
+                    <div style="height: 50px;"></div>
+                    <span style="text-decoration: underline; font-weight: bold;">Titin Maria Ulfah</span><br>
+                    <span>Nippos : 971307519</span>
+                </td>
+                <td style="width: 34%;" class="sign-box">
+                    <span style="font-weight: bold;">Mengetahui,<br>Manajer Dukungan Umum</span>
+                    <div style="height: 50px;"></div>
+                    <span style="text-decoration: underline; font-weight: bold;">Estu Yunarto</span><br>
+                    <span>Nippos : 987392529</span>
+                </td>
+                <td style="width: 33%;" class="sign-box">
+                    <span>Dibuat oleh,</span>
+                    <div style="height: 50px;"></div>
+                    <span style="text-decoration: underline; font-weight: bold;">Hendra k Wigun</span><br>
+                    <span>Nippos : 979437994</span>
+                </td>
+            </tr>
+        </table>
+    </div>
+
+    <!-- Tombol Aksi Bawah (Untuk Keseluruhan Laporan) -->
+    <div class="text-center mt-4 no-print">
+        <button onclick="window.print()" class="btn btn-success px-4 py-2 me-2"><i class="bi bi-printer"></i> Cetak Laporan Keseluruhan</button>
+        <button onclick="exportExcel()" class="btn btn-primary px-4 py-2"><i class="bi bi-file-earmark-excel"></i> Download Excel Keseluruhan</button>
+    </div>
+</div>
+
+<script>
+function formatTanggalIndo(tanggalStr) {
+    if (!tanggalStr) return '';
+    let bagian = tanggalStr.split('-');
+    let tahun = bagian[0];
+    let bulanAngka = parseInt(bagian[1]);
+    let hari = bagian[2];
+    let namaBulan = ['', 'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+    return `${hari} ${namaBulan[bulanAngka]} ${tahun}`;
+}
+
+function updatePeriodeOtomatis() {
+    let tglMulaiVal = document.getElementById('tgl_mulai').value;
+    let tglSelesaiVal = document.getElementById('tgl_selesai').value;
+    document.getElementById('label_periode_header').innerText = `Periode : ${formatTanggalIndo(tglMulaiVal)} s/d ${formatTanggalIndo(tglSelesaiVal)}`;
+}
+
+function tambahTransaksi() {
+    let nopol = document.getElementById('form_nopol').value;
+    let merk = document.getElementById('form_merk').value;
+    let lokasi = document.getElementById('form_lokasi').value;
+    let peruntukan = document.getElementById('form_peruntukan').value;
+    let bbm = document.getElementById('form_bbm').value;
+    let kmAwalVal = document.getElementById('form_km_awal').value;
+    let kmAkhirVal = document.getElementById('form_km_akhir').value;
+
+    let tbody = document.getElementById('body-tabel');
+    let rowCount = tbody.rows.length + 1;
+
+    let newRow = tbody.insertRow();
+    newRow.innerHTML = `
+        <td class="row-no">${rowCount}</td>
+        <td class="val-nopol fw-bold">${nopol}</td>
+        <td class="val-merk text-start-custom">${merk}</td>
+        <td class="val-lokasi">${lokasi}</td>
+        <td class="val-peruntukan">${peruntukan}</td>
+        <td class="val-bbm">${bbm}</td>
+        <td><span class="label-rupiah fw-bold">Rp 0</span></td>
+        <td class="val-km-awal">${kmAwalVal}</td>
+        <td class="val-km-akhir">${kmAkhirVal}</td>
+        <td><span class="label-jarak fw-bold">0 KM</span></td>
+        <td class="no-print">
+            <button type="button" class="btn btn-success btn-sm py-0 px-1 mb-1" style="font-size: 8px;" title="Print Baris Ini Sesuai Format" onclick="printBarisKhusus(this)"><i class="bi bi-printer"></i></button>
+            <button type="button" class="btn btn-primary btn-sm py-0 px-1 mb-1" style="font-size: 8px;" title="Excel Baris Ini Sesuai Format" onclick="excelBarisKhusus(this)"><i class="bi bi-file-earmark-excel"></i></button>
+            <button type="button" class="btn btn-danger btn-sm py-0 px-1 mb-1" style="font-size: 8px;" title="Hapus Baris" onclick="hapusBaris(this)"><i class="bi bi-trash"></i></button>
+        </td>
+    `;
+
+    document.getElementById('form_km_awal').value = kmAkhirVal;
+    document.getElementById('form_km_akhir').value = '';
+    hitungSemua();
+}
+
+function hapusBaris(btn) {
+    btn.parentNode.parentNode.remove();
+    updateNomorUrut();
+    hitungSemua();
+}
+
+function updateNomorUrut() {
+    document.querySelectorAll('#body-tabel tr').forEach((row, index) => {
+        row.querySelector('.row-no').innerText = index + 1;
+    });
+}
+
+function hitungSemua() {
+    let totalSemuaBiaya = 0;
+    let isPaten = document.getElementById('patenkan_target').checked;
+
+    document.querySelectorAll('#body-tabel tr').forEach(row => {
+        let kmAwal = parseFloat(row.querySelector('.val-km-awal').innerText.replace(/\./g, '').replace(',', '.')) || 0;
+        let kmAkhir = parseFloat(row.querySelector('.val-km-akhir').innerText.replace(/\./g, '').replace(',', '.')) || 0;
+        
+        let jarak = (kmAkhir >= kmAwal) ? (kmAkhir - kmAwal) : 0;
+        let biayaBaris = isPaten ? 900000 : (jarak * 3000);
+
+        row.querySelector('.label-jarak').innerText = jarak + ' KM';
+        row.querySelector('.label-rupiah').innerText = 'Rp ' + biayaBaris.toLocaleString('id-ID');
+        
+        totalSemuaBiaya += biayaBaris;
+    });
+
+    document.getElementById('label_total_bawah').innerText = 'Rp ' + totalSemuaBiaya.toLocaleString('id-ID') + ',-';
+}
+
+// Fungsi Print Khusus Per Baris dengan Format Laporan Utuh
+function printBarisKhusus(btn) {
+    let row = btn.closest('tr');
+    let clonedRow = row.cloneNode(true);
+    clonedRow.querySelector('.no-print').remove(); // Buang kolom tombol aksi
+    clonedRow.querySelector('.row-no').innerText = '1'; // Set nomor jadi 1 untuk cetakan tunggal
+
+    let rupiahVal = row.querySelector('.label-rupiah').innerText;
+    let periodeText = document.getElementById('label_periode_header').innerText;
+
+    let printWindow = window.open('', '', 'height=600,width=900');
+    printWindow.document.write('<html><head><title>Print Laporan Per Baris</title>');
+    printWindow.document.write('<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">');
+    printWindow.document.write('<style>');
+    printWindow.document.write('body { font-family: Arial, sans-serif; color: #000; padding: 20px; }');
+    printWindow.document.write('.report-title { text-align: center; font-weight: bold; font-size: 13px; text-transform: uppercase; margin-bottom: 2px; }');
+    printWindow.document.write('.table-laporan { width: 100%; border-collapse: collapse; margin-top: 15px; table-layout: fixed; }');
+    printWindow.document.write('.table-laporan th, .table-laporan td { border: 1px solid #000; padding: 5px 3px; text-align: center; vertical-align: middle; font-size: 9px; }');
+    printWindow.document.write('.table-laporan th { background-color: #f1f1f1; text-transform: uppercase; font-size: 9px; }');
+    printWindow.document.write('.signature-section { margin-top: 40px; width: 100%; page-break-inside: avoid; }');
+    printWindow.document.write('.sign-box { text-align: center; height: 80px; vertical-align: bottom; font-size: 11px; }');
+    printWindow.document.write('</style></head><body>');
+
+    printWindow.document.write('<div class="report-title">BANDUNG - 40000</div>');
+    printWindow.document.write(`<div style="text-align: center; font-size: 11px; margin-bottom: 15px;">${periodeText}</div>`);
+
+    printWindow.document.write('<table class="table-laporan">');
+    printWindow.document.write('<thead><tr><th style="width: 28px;">NO.</th><th style="width: 70px;">NOPOL</th><th style="width: 115px;">MERK</th><th style="width: 65px;">LOKASI</th><th style="width: 75px;">PERUNTUKAN</th><th style="width: 48px;">BBM (L)</th><th style="width: 80px;">RUPIAH</th><th style="width: 65px;">KM AWAL</th><th style="width: 65px;">KM AKHIR</th><th style="width: 55px;">JARAK</th></tr></thead>');
+    printWindow.document.write('<tbody>' + clonedRow.outerHTML + '</tbody>');
+    printWindow.document.write(`<tfoot><tr><td colspan="6" style="font-weight: bold; text-align: left; padding-left: 8px;">TOTAL PEMAKAIAN BBM</td><td style="font-weight: bold; text-align: center;">${rupiahVal},-</td><td colspan="3"></td></tr></tfoot>`);
+    printWindow.document.write('</table>');
+
+    printWindow.document.write('<div class="signature-section">');
+    printWindow.document.write('<div style="text-align: right; margin-bottom: 25px; padding-right: 20px;">Bandung, 24 September 2026</div>');
+    printWindow.document.write('<table style="width: 100%; border: none;"><tr>');
+    printWindow.document.write('<td style="width: 33%;" class="sign-box"><span style="font-weight: bold;">Deputy EGM,</span><div style="height: 50px;"></div><span style="text-decoration: underline; font-weight: bold;">Titin Maria Ulfah</span><br><span>Nippos : 971307519</span></td>');
+    printWindow.document.write('<td style="width: 34%;" class="sign-box"><span style="font-weight: bold;">Mengetahui,<br>Manajer Dukungan Umum</span><div style="height: 50px;"></div><span style="text-decoration: underline; font-weight: bold;">Estu Yunarto</span><br><span>Nippos : 987392529</span></td>');
+    printWindow.document.write('<td style="width: 33%;" class="sign-box"><span>Dibuat oleh,</span><div style="height: 50px;"></div><span style="text-decoration: underline; font-weight: bold;">Hendra k Wigun</span><br><span>Nippos : 979437994</span></td>');
+    printWindow.document.write('</tr></table></div>');
+
+    printWindow.document.write('</body></html>');
+    printWindow.document.close();
+    printWindow.focus();
+    setTimeout(() => { printWindow.print(); printWindow.close(); }, 500);
+}
+
+// Fungsi Download Excel Khusus Per Baris dengan Format Laporan Utuh
+function excelBarisKhusus(btn) {
+    let row = btn.closest('tr');
+    let clonedRow = row.cloneNode(true);
+    clonedRow.querySelector('.no-print').remove();
+    clonedRow.querySelector('.row-no').innerText = '1';
+
+    let rupiahVal = row.querySelector('.label-rupiah').innerText;
+    let periodeText = document.getElementById('label_periode_header').innerText;
+
+    let excelHTML = `
+        <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
+        <head><meta charset="UTF-8"></head>
+        <body>
+            <div style="text-align: center; font-weight: bold; font-size: 14px;">BANDUNG - 40000</div>
+            <div style="text-align: center; font-size: 11px; margin-bottom: 10px;">${periodeText}</div>
+            <table border="1">
+                <thead>
+                    <tr style="background-color: #f1f1f1;">
+                        <th>NO.</th><th>NOPOL</th><th>MERK</th><th>LOKASI</th><th>PERUNTUKAN</th><th>BBM (L)</th><th>RUPIAH</th><th>KM AWAL</th><th>KM AKHIR</th><th>JARAK</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${clonedRow.outerHTML}
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <td colspan="6" style="font-weight: bold;">TOTAL PEMAKAIAN BBM</td>
+                        <td style="font-weight: bold;">${rupiahVal},-</td>
+                        <td colspan="3"></td>
+                    </tr>
+                </tfoot>
+            </table>
+            <br><br>
+            <div style="text-align: right;">Bandung, 24 September 2026</div>
+            <table border="0" style="width:100%; margin-top:10px;">
+                <tr>
+                    <td align="center"><b>Deputy EGM,</b><br><br><br><u>Titin Maria Ulfah</u><br>Nippos : 971307519</td>
+                    <td align="center"><b>Mengetahui,<br>Manajer Dukungan Umum</b><br><br><br><u>Estu Yunarto</u><br>Nippos : 987392529</td>
+                    <td align="center"><b>Dibuat oleh,</b><br><br><br><u>Hendra k Wigun</u><br>Nippos : 979437994</td>
+                </tr>
+            </table>
+        </body>
+        </html>
+    `;
+
+    let blob = new Blob([excelHTML], { type: 'application/vnd.ms-excel' });
+    let a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'Detail_Laporan_Transaksi_BBM.xls';
+    a.click();
+}
+
+function exportExcel() {
+    let laporanHTML = document.getElementById('area-laporan').innerHTML;
+    let tempDiv = document.createElement('div');
+    tempDiv.innerHTML = laporanHTML;
+    tempDiv.querySelectorAll('.no-print').forEach(el => el.remove());
+
+    let excelTemplate = `
+        <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
+        <head><meta charset="UTF-8"></head>
+        <body>
+            ${tempDiv.innerHTML}
+        </body>
+        </html>
+    `;
+
+    let blob = new Blob([excelTemplate], { type: 'application/vnd.ms-excel' });
+    let a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'Laporan_BBM_EGM_Bandung.xls';
+    a.click();
+}
+</script>
+
+</body>
+</html>
