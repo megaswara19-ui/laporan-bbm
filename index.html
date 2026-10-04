@@ -28,10 +28,72 @@
 </head>
 <body class="py-4">
 
-<!-- FORM / MENU INPUT TRANSAKSI (Hilang saat diprint) -->
+<!-- NAVBAR / TOMBOL SETTING GERIGI (TIDAK IKUT TERCETAK) -->
+<div class="container no-print d-flex justify-content-between align-items-center mb-3" style="max-width: 1050px;">
+    <h5 class="text-secondary fw-bold m-0"><i class="bi bi-fuel-pump"></i> Panel Kontrol Laporan BBM</h5>
+    <button type="button" class="btn btn-dark btn-sm px-3 shadow-sm" data-bs-toggle="modal" data-bs-target="#modalPengaturan">
+        <i class="bi bi-gear-fill"></i> Pengaturan Pejabat & Anggaran
+    </button>
+</div>
+
+<!-- MODAL PENGATURAN (PEJABAT & TARGET ANGGARAN) -->
+<div class="modal fade" id="modalPengaturan" tabindex="-1" aria-labelledby="modalPengaturanLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-dark text-white py-2">
+                <h5 class="modal-title fs-6 fw-bold" id="modalPengaturanLabel"><i class="bi bi-gear-fill"></i> Pengaturan Pejabat & Target Anggaran</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Pengaturan Target Anggaran -->
+                <div class="card bg-light border-warning p-2.5 mb-3">
+                    <label class="fw-bold text-dark mb-1" style="font-size: 11px;"><i class="bi bi-cash-stack text-success"></i> Target Rupiah per Transaksi (Kebijakan Anggaran):</label>
+                    <div class="input-group input-group-sm">
+                        <span class="input-group-text fw-bold">Rp</span>
+                        <input type="number" id="setting_target_rupiah" class="form-control" value="900000" step="50000" oninput="hitungUlangSemuaDariSetting()">
+                    </div>
+                    <small class="text-muted mt-1" style="font-size: 9px;">*Mengubah nominal ini otomatis menyesuaikan target Rupiah dan Jarak (dihitung otomatis berdasarkan tarif per KM Rp 3.000).</small>
+                </div>
+
+                <hr>
+
+                <h6 class="fw-bold text-secondary mb-2" style="font-size: 11px;">Pejabat Penandatangan Laporan:</h6>
+                <div class="row g-3">
+                    <!-- Pejabat 1 -->
+                    <div class="col-md-4 border-end">
+                        <label class="fw-bold text-primary mb-1" style="font-size: 10px;">1. Deputy EGM</label>
+                        <input type="text" id="set_jabatan1" class="form-control form-control-sm mb-2" value="Deputy EGM,">
+                        <input type="text" id="set_nama1" class="form-control form-control-sm mb-2" value="Titin Maria Ulfah" placeholder="Nama Lengkap">
+                        <input type="text" id="set_nip1" class="form-control form-control-sm" value="971307519" placeholder="Nippos">
+                    </div>
+                    <!-- Pejabat 2 -->
+                    <div class="col-md-4 border-end">
+                        <label class="fw-bold text-primary mb-1" style="font-size: 10px;">2. Mengetahui (Manajer)</label>
+                        <input type="text" id="set_jabatan2" class="form-control form-control-sm mb-2" value="Mengetahui,<br>Manajer Dukungan Umum">
+                        <input type="text" id="set_nama2" class="form-control form-control-sm mb-2" value="Estu Yunarto" placeholder="Nama Lengkap">
+                        <input type="text" id="set_nip2" class="form-control form-control-sm" value="987392529" placeholder="Nippos">
+                    </div>
+                    <!-- Pejabat 3 -->
+                    <div class="col-md-4">
+                        <label class="fw-bold text-primary mb-1" style="font-size: 10px;">3. Pembuat Laporan</label>
+                        <input type="text" id="set_jabatan3" class="form-control form-control-sm mb-2" value="Dibuat oleh,">
+                        <input type="text" id="set_nama3" class="form-control form-control-sm mb-2" value="Hendra k Wigun" placeholder="Nama Lengkap">
+                        <input type="text" id="set_nip3" class="form-control form-control-sm" value="979437994" placeholder="Nippos">
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer py-2">
+                <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Tutup</button>
+                <button type="button" class="btn btn-primary btn-sm px-4" onclick="simpanPengaturan()">Simpan Perubahan</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- FORM / MENU INPUT TRANSAKSI -->
 <div class="container no-print" style="max-width: 1050px; margin-bottom: 20px;">
     <div class="card shadow-sm border-primary p-3 bg-white">
-        <h5 class="text-primary fw-bold mb-3"><i class="bi bi-calendar-range"></i> Pengaturan Periode & Form Input Transaksi</h5>
+        <h5 class="text-primary fw-bold mb-3"><i class="bi bi-calendar-range"></i> Form Input & Manipulasi Odometer</h5>
         <div class="row g-2">
             <div class="col-md-3">
                 <label class="form-label fw-bold" style="font-size: 11px;">Dari Tanggal:</label>
@@ -64,15 +126,18 @@
                 <input type="number" id="form_bbm" class="form-control form-control-sm" value="70">
             </div>
             
-            <div class="col-md-2 mt-3">
-                <label class="form-label fw-bold" style="font-size: 11px;">KM Awal:</label>
-                <input type="text" id="form_km_awal" class="form-control form-control-sm" value="77875">
+            <div class="col-md-5 mt-3">
+                <label class="form-label fw-bold text-danger" style="font-size: 11px;">KM Awal (Bulan Lalu):</label>
+                <input type="text" id="form_km_awal" class="form-control form-control-sm bg-light" value="77875">
             </div>
-            <div class="col-md-2 mt-3">
-                <label class="form-label fw-bold" style="font-size: 11px;">KM Akhir:</label>
-                <input type="text" id="form_km_akhir" class="form-control form-control-sm" placeholder="Isi Odo Akhir" value="78316">
+            <div class="col-md-5 mt-3">
+                <label class="form-label fw-bold text-secondary" style="font-size: 11px;">KM Akhir Real (Foto Lapangan):</label>
+                <input type="text" id="form_km_real" class="form-control form-control-sm" value="" placeholder="Ketik odo asli di sini...">
             </div>
-            <div class="col-md-8 mt-3 d-flex align-items-end">
+
+            <input type="hidden" id="form_km_manipulasi_tampil" value="78175">
+
+            <div class="col-md-12 mt-3 d-flex align-items-end">
                 <button type="button" class="btn btn-success btn-sm w-100 fw-bold py-1.5" onclick="tambahTransaksi()"><i class="bi bi-plus-circle"></i> Tambah Transaksi ke Laporan</button>
             </div>
         </div>
@@ -102,45 +167,18 @@
             </tr>
         </thead>
         <tbody id="body-tabel">
-            <tr>
-                <td class="row-no">1</td>
-                <td class="val-nopol fw-bold">D 1040 AKO</td>
-                <td class="val-merk text-start-custom">DAIHATSU TERIOS AT</td>
-                <td class="val-lokasi">BANDUNG</td>
-                <td class="val-peruntukan">78316</td>
-                <td class="val-bbm">70</td>
-                <td><span class="label-rupiah fw-bold">Rp 900.000</span></td>
-                <td class="val-km-awal">77875</td>
-                <td class="val-km-akhir">78316</td>
-                <td><span class="label-jarak fw-bold">441 KM</span></td>
-                <td class="no-print">
-                    <button type="button" class="btn btn-success btn-sm py-0 px-1 mb-1" style="font-size: 8px;" title="Print Baris Ini Sesuai Format" onclick="printBarisKhusus(this)"><i class="bi bi-printer"></i></button>
-                    <button type="button" class="btn btn-primary btn-sm py-0 px-1 mb-1" style="font-size: 8px;" title="Excel Baris Ini Sesuai Format" onclick="excelBarisKhusus(this)"><i class="bi bi-file-earmark-excel"></i></button>
-                    <button type="button" class="btn btn-danger btn-sm py-0 px-1 mb-1" style="font-size: 8px;" title="Hapus Baris" onclick="hapusBaris(this)"><i class="bi bi-trash"></i></button>
-                </td>
-            </tr>
+            <!-- Data awal kosong -->
         </tbody>
         <tfoot>
-            <!-- Footer dengan Colspan yang pas rata dengan garis tabel atas -->
             <tr>
                 <td colspan="6" style="font-weight: bold; text-align: left; padding-left: 8px;">TOTAL PEMAKAIAN BBM</td>
-                <td style="font-weight: bold; text-align: center;"><span id="label_total_bawah">Rp 900.000,-</span></td>
+                <td style="font-weight: bold; text-align: center;"><span id="label_total_bawah">Rp 0,-</span></td>
                 <td colspan="3"></td>
             </tr>
         </tfoot>
     </table>
 
-    <!-- Opsi Kunci Nominal -->
-    <div class="card bg-light border-warning mt-3 no-print p-3">
-        <div class="form-check">
-            <input class="form-check-input" type="checkbox" id="patenkan_target" checked onchange="hitungSemua()">
-            <label class="form-check-label fw-bold text-dark" for="patenkan_target">
-                <i class="bi bi-magic text-warning"></i> Patenkan / Kunci Total Klaim di Angka Rp 900.000 per baris
-            </label>
-        </div>
-    </div>
-
-    <!-- Tanda Tangan -->
+    <!-- Tanda Tangan / Footer Dinamis -->
     <div class="signature-section">
         <div style="text-align: right; margin-bottom: 25px; padding-right: 20px;">
             Bandung, 24 September 2026
@@ -148,35 +186,86 @@
         <table style="width: 100%; border: none;">
             <tr>
                 <td style="width: 33%;" class="sign-box">
-                    <span style="font-weight: bold;">Deputy EGM,</span>
+                    <span id="preview_jabatan1" style="font-weight: bold;">Deputy EGM,</span>
                     <div style="height: 50px;"></div>
-                    <span style="text-decoration: underline; font-weight: bold;">Titin Maria Ulfah</span><br>
-                    <span>Nippos : 971307519</span>
+                    <span id="preview_nama1" style="text-decoration: underline; font-weight: bold;">Titin Maria Ulfah</span><br>
+                    <span>Nippos : <span id="preview_nip1">971307519</span></span>
                 </td>
                 <td style="width: 34%;" class="sign-box">
-                    <span style="font-weight: bold;">Mengetahui,<br>Manajer Dukungan Umum</span>
+                    <span id="preview_jabatan2" style="font-weight: bold;">Mengetahui,<br>Manajer Dukungan Umum</span>
                     <div style="height: 50px;"></div>
-                    <span style="text-decoration: underline; font-weight: bold;">Estu Yunarto</span><br>
-                    <span>Nippos : 987392529</span>
+                    <span id="preview_nama2" style="text-decoration: underline; font-weight: bold;">Estu Yunarto</span><br>
+                    <span>Nippos : <span id="preview_nip2">987392529</span></span>
                 </td>
                 <td style="width: 33%;" class="sign-box">
-                    <span>Dibuat oleh,</span>
+                    <span id="preview_jabatan3">Dibuat oleh,</span>
                     <div style="height: 50px;"></div>
-                    <span style="text-decoration: underline; font-weight: bold;">Hendra k Wigun</span><br>
-                    <span>Nippos : 979437994</span>
+                    <span id="preview_nama3" style="text-decoration: underline; font-weight: bold;">Hendra k Wigun</span><br>
+                    <span>Nippos : <span id="preview_nip3">979437994</span></span>
                 </td>
             </tr>
         </table>
     </div>
 
-    <!-- Tombol Aksi Bawah (Untuk Keseluruhan Laporan) -->
+    <!-- Tombol Aksi Bawah -->
     <div class="text-center mt-4 no-print">
         <button onclick="window.print()" class="btn btn-success px-4 py-2 me-2"><i class="bi bi-printer"></i> Cetak Laporan Keseluruhan</button>
         <button onclick="exportExcel()" class="btn btn-primary px-4 py-2"><i class="bi bi-file-earmark-excel"></i> Download Excel Keseluruhan</button>
     </div>
 </div>
 
+<!-- Script Bootstrap JS (Wajib untuk Modal) -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
 <script>
+// Variabel Global untuk menyimpan Target Rupiah aktif (default 900.000)
+let targetRupiahAktif = 900000;
+
+// Fungsi Simpan Pengaturan dari Modal & Update Data Otomatis
+function simpanPengaturan() {
+    // Ambil nilai target rupiah baru dari input modal
+    let inputRupiah = parseFloat(document.getElementById('setting_target_rupiah').value) || 900000;
+    targetRupiahAktif = inputRupiah;
+
+    // Update Tanda Tangan Footer
+    document.getElementById('preview_jabatan1').innerHTML = document.getElementById('set_jabatan1').value;
+    document.getElementById('preview_nama1').innerText = document.getElementById('set_nama1').value;
+    document.getElementById('preview_nip1').innerText = document.getElementById('set_nip1').value;
+
+    document.getElementById('preview_jabatan2').innerHTML = document.getElementById('set_jabatan2').value;
+    document.getElementById('preview_nama2').innerText = document.getElementById('set_nama2').value;
+    document.getElementById('preview_nip2').innerText = document.getElementById('set_nip2').value;
+
+    document.getElementById('preview_jabatan3').innerHTML = document.getElementById('set_jabatan3').value;
+    document.getElementById('preview_nama3').innerText = document.getElementById('set_nama3').value;
+    document.getElementById('preview_nip3').innerText = document.getElementById('set_nip3').value;
+
+    // Hitung ulang kalkulasi form aktif & baris tabel yang sudah ada
+    hitungBackground();
+    hitungSemua();
+
+    // Tutup modal secara otomatis pakai Bootstrap API
+    let myModalEl = document.getElementById('modalPengaturan');
+    let modalInstance = bootstrap.Modal.getInstance(myModalEl) || new bootstrap.Modal(myModalEl);
+    modalInstance.hide();
+}
+
+// Hitung otomatis selisih KM berdasarkan Target Rupiah / 3000
+function hitungBackground() {
+    let kmAwal = parseFloat(document.getElementById('form_km_awal').value) || 0;
+    let penambahanKM = targetRupiahAktif / 3000; // Misal 900rb / 3000 = 300 KM. Kalau 700rb, otomatis menyesuaikan.
+    let targetManipulasi = kmAwal + Math.round(penambahanKM); 
+    document.getElementById('form_km_manipulasi_tampil').value = targetManipulasi;
+}
+hitungBackground();
+
+// Live update saat nilai target rupiah diketik di modal
+function hitungUlangSemuaDariSetting() {
+    let val = parseFloat(document.getElementById('setting_target_rupiah').value) || 900000;
+    targetRupiahAktif = val;
+    hitungBackground();
+}
+
 function formatTanggalIndo(tanggalStr) {
     if (!tanggalStr) return '';
     let bagian = tanggalStr.split('-');
@@ -199,8 +288,13 @@ function tambahTransaksi() {
     let lokasi = document.getElementById('form_lokasi').value;
     let peruntukan = document.getElementById('form_peruntukan').value;
     let bbm = document.getElementById('form_bbm').value;
+    
     let kmAwalVal = document.getElementById('form_km_awal').value;
-    let kmAkhirVal = document.getElementById('form_km_akhir').value;
+    let kmRealVal = document.getElementById('form_km_real').value || '-'; 
+    let kmManipulasiVal = document.getElementById('form_km_manipulasi_tampil').value; 
+
+    let targetJarakBaris = Math.round(targetRupiahAktif / 3000);
+    let rupiahFormatted = 'Rp ' + targetRupiahAktif.toLocaleString('id-ID');
 
     let tbody = document.getElementById('body-tabel');
     let rowCount = tbody.rows.length + 1;
@@ -213,19 +307,20 @@ function tambahTransaksi() {
         <td class="val-lokasi">${lokasi}</td>
         <td class="val-peruntukan">${peruntukan}</td>
         <td class="val-bbm">${bbm}</td>
-        <td><span class="label-rupiah fw-bold">Rp 0</span></td>
+        <td><span class="label-rupiah fw-bold" data-nominal="${targetRupiahAktif}">${rupiahFormatted}</span></td>
         <td class="val-km-awal">${kmAwalVal}</td>
-        <td class="val-km-akhir">${kmAkhirVal}</td>
-        <td><span class="label-jarak fw-bold">0 KM</span></td>
+        <td class="val-km-akhir" title="Odo Real Lapangan: ${kmRealVal}">${kmManipulasiVal}</td>
+        <td><span class="label-jarak fw-bold">${targetJarakBaris} KM</span></td>
         <td class="no-print">
-            <button type="button" class="btn btn-success btn-sm py-0 px-1 mb-1" style="font-size: 8px;" title="Print Baris Ini Sesuai Format" onclick="printBarisKhusus(this)"><i class="bi bi-printer"></i></button>
-            <button type="button" class="btn btn-primary btn-sm py-0 px-1 mb-1" style="font-size: 8px;" title="Excel Baris Ini Sesuai Format" onclick="excelBarisKhusus(this)"><i class="bi bi-file-earmark-excel"></i></button>
+            <button type="button" class="btn btn-success btn-sm py-0 px-1 mb-1" style="font-size: 8px;" title="Print Baris" onclick="printBarisKhusus(this)"><i class="bi bi-printer"></i></button>
+            <button type="button" class="btn btn-primary btn-sm py-0 px-1 mb-1" style="font-size: 8px;" title="Excel Baris" onclick="excelBarisKhusus(this)"><i class="bi bi-file-earmark-excel"></i></button>
             <button type="button" class="btn btn-danger btn-sm py-0 px-1 mb-1" style="font-size: 8px;" title="Hapus Baris" onclick="hapusBaris(this)"><i class="bi bi-trash"></i></button>
         </td>
     `;
 
-    document.getElementById('form_km_awal').value = kmAkhirVal;
-    document.getElementById('form_km_akhir').value = '';
+    document.getElementById('form_km_awal').value = kmManipulasiVal;
+    document.getElementById('form_km_real').value = ''; 
+    hitungBackground();
     hitungSemua();
 }
 
@@ -243,33 +338,40 @@ function updateNomorUrut() {
 
 function hitungSemua() {
     let totalSemuaBiaya = 0;
-    let isPaten = document.getElementById('patenkan_target').checked;
-
     document.querySelectorAll('#body-tabel tr').forEach(row => {
-        let kmAwal = parseFloat(row.querySelector('.val-km-awal').innerText.replace(/\./g, '').replace(',', '.')) || 0;
-        let kmAkhir = parseFloat(row.querySelector('.val-km-akhir').innerText.replace(/\./g, '').replace(',', '.')) || 0;
-        
+        let kmAwal = parseFloat(row.querySelector('.val-km-awal').innerText) || 0;
+        let kmAkhir = parseFloat(row.querySelector('.val-km-akhir').innerText) || 0;
         let jarak = (kmAkhir >= kmAwal) ? (kmAkhir - kmAwal) : 0;
-        let biayaBaris = isPaten ? 900000 : (jarak * 3000);
+        let biayaBaris = jarak * 3000;
 
+        // Update baris sesuai target anggaran aktif saat ini
         row.querySelector('.label-jarak').innerText = jarak + ' KM';
         row.querySelector('.label-rupiah').innerText = 'Rp ' + biayaBaris.toLocaleString('id-ID');
-        
         totalSemuaBiaya += biayaBaris;
     });
-
     document.getElementById('label_total_bawah').innerText = 'Rp ' + totalSemuaBiaya.toLocaleString('id-ID') + ',-';
 }
 
-// Fungsi Print Khusus Per Baris dengan Format Laporan Utuh
 function printBarisKhusus(btn) {
     let row = btn.closest('tr');
     let clonedRow = row.cloneNode(true);
-    clonedRow.querySelector('.no-print').remove(); // Buang kolom tombol aksi
-    clonedRow.querySelector('.row-no').innerText = '1'; // Set nomor jadi 1 untuk cetakan tunggal
+    clonedRow.querySelector('.no-print').remove();
+    clonedRow.querySelector('.row-no').innerText = '1';
 
     let rupiahVal = row.querySelector('.label-rupiah').innerText;
     let periodeText = document.getElementById('label_periode_header').innerText;
+
+    let jab1 = document.getElementById('set_jabatan1').value;
+    let nam1 = document.getElementById('set_nama1').value;
+    let nip1 = document.getElementById('set_nip1').value;
+
+    let jab2 = document.getElementById('set_jabatan2').value;
+    let nam2 = document.getElementById('set_nama2').value;
+    let nip2 = document.getElementById('set_nip2').value;
+
+    let jab3 = document.getElementById('set_jabatan3').value;
+    let nam3 = document.getElementById('set_nama3').value;
+    let nip3 = document.getElementById('set_nip3').value;
 
     let printWindow = window.open('', '', 'height=600,width=900');
     printWindow.document.write('<html><head><title>Print Laporan Per Baris</title>');
@@ -296,9 +398,9 @@ function printBarisKhusus(btn) {
     printWindow.document.write('<div class="signature-section">');
     printWindow.document.write('<div style="text-align: right; margin-bottom: 25px; padding-right: 20px;">Bandung, 24 September 2026</div>');
     printWindow.document.write('<table style="width: 100%; border: none;"><tr>');
-    printWindow.document.write('<td style="width: 33%;" class="sign-box"><span style="font-weight: bold;">Deputy EGM,</span><div style="height: 50px;"></div><span style="text-decoration: underline; font-weight: bold;">Titin Maria Ulfah</span><br><span>Nippos : 971307519</span></td>');
-    printWindow.document.write('<td style="width: 34%;" class="sign-box"><span style="font-weight: bold;">Mengetahui,<br>Manajer Dukungan Umum</span><div style="height: 50px;"></div><span style="text-decoration: underline; font-weight: bold;">Estu Yunarto</span><br><span>Nippos : 987392529</span></td>');
-    printWindow.document.write('<td style="width: 33%;" class="sign-box"><span>Dibuat oleh,</span><div style="height: 50px;"></div><span style="text-decoration: underline; font-weight: bold;">Hendra k Wigun</span><br><span>Nippos : 979437994</span></td>');
+    printWindow.document.write(`<td style="width: 33%;" class="sign-box"><span style="font-weight: bold;">${jab1}</span><div style="height: 50px;"></div><span style="text-decoration: underline; font-weight: bold;">${nam1}</span><br><span>Nippos : ${nip1}</span></td>`);
+    printWindow.document.write(`<td style="width: 34%;" class="sign-box"><span style="font-weight: bold;">${jab2}</span><div style="height: 50px;"></div><span style="text-decoration: underline; font-weight: bold;">${nam2}</span><br><span>Nippos : ${nip2}</span></td>`);
+    printWindow.document.write(`<td style="width: 33%;" class="sign-box"><span>${jab3}</span><div style="height: 50px;"></div><span style="text-decoration: underline; font-weight: bold;">${nam3}</span><br><span>Nippos : ${nip3}</span></td>`);
     printWindow.document.write('</tr></table></div>');
 
     printWindow.document.write('</body></html>');
@@ -307,7 +409,6 @@ function printBarisKhusus(btn) {
     setTimeout(() => { printWindow.print(); printWindow.close(); }, 500);
 }
 
-// Fungsi Download Excel Khusus Per Baris dengan Format Laporan Utuh
 function excelBarisKhusus(btn) {
     let row = btn.closest('tr');
     let clonedRow = row.cloneNode(true);
@@ -316,6 +417,18 @@ function excelBarisKhusus(btn) {
 
     let rupiahVal = row.querySelector('.label-rupiah').innerText;
     let periodeText = document.getElementById('label_periode_header').innerText;
+
+    let jab1 = document.getElementById('set_jabatan1').value;
+    let nam1 = document.getElementById('set_nama1').value;
+    let nip1 = document.getElementById('set_nip1').value;
+
+    let jab2 = document.getElementById('set_jabatan2').value;
+    let nam2 = document.getElementById('set_nama2').value;
+    let nip2 = document.getElementById('set_nip2').value;
+
+    let jab3 = document.getElementById('set_jabatan3').value;
+    let nam3 = document.getElementById('set_nama3').value;
+    let nip3 = document.getElementById('set_nip3').value;
 
     let excelHTML = `
         <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
@@ -344,9 +457,9 @@ function excelBarisKhusus(btn) {
             <div style="text-align: right;">Bandung, 24 September 2026</div>
             <table border="0" style="width:100%; margin-top:10px;">
                 <tr>
-                    <td align="center"><b>Deputy EGM,</b><br><br><br><u>Titin Maria Ulfah</u><br>Nippos : 971307519</td>
-                    <td align="center"><b>Mengetahui,<br>Manajer Dukungan Umum</b><br><br><br><u>Estu Yunarto</u><br>Nippos : 987392529</td>
-                    <td align="center"><b>Dibuat oleh,</b><br><br><br><u>Hendra k Wigun</u><br>Nippos : 979437994</td>
+                    <td align="center"><b>${jab1}</b><br><br><br><u>${nam1}</u><br>Nippos : ${nip1}</td>
+                    <td align="center"><b>${jab2}</b><br><br><br><u>${nam2}</u><br>Nippos : ${nip2}</td>
+                    <td align="center"><b>${jab3}</b><br><br><br><u>${nam3}</u><br>Nippos : ${nip3}</td>
                 </tr>
             </table>
         </body>
